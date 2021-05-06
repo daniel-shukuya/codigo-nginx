@@ -1,0 +1,15 @@
+FROM registry.access.redhat.com/ubi8/nginx-118
+
+# Add application sources
+ADD nginx/nginx.conf "${NGINX_CONF_PATH}"
+ADD nginx/nginx-default-cfg/*.conf "${NGINX_DEFAULT_CONF_PATH}"
+ADD nginx/nginx-cfg/*.conf "${NGINX_CONFIGURATION_PATH}"
+ADD nginx/index.html .
+
+RUN mkdir -p /tmp/nginx/cache/amzn
+RUN mkdir -p /tmp/nginx/cache/pmnt
+
+RUN chgrp -R 0 /tmp/nginx/cache && chmod -R g=u /tmp/nginx/cache
+
+# Run script uses standard ways to run the application
+CMD nginx -g "daemon off;"
