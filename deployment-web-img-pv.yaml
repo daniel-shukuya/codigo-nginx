@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-img-pv
+spec:
+  selector:
+    app: web-img-pv
+  ports:
+    - port: 8080
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-img-pv
+  labels:
+    app: web-img-pv
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-img-pv
+  template:
+    metadata:
+      labels:
+        app: web-img-pv
+    spec:
+      containers:
+        - name: web-img-pv
+          image: danieldocke/web-img-pv:1.0
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: web-img-pv
+spec:
+  host: web-img-pv.primer-test.apps-crc.testing
+  #host: lala.192.168.130.11.nip.io
+  to:
+    kind: Service
+    name: web-img-pv
+    weight: 100
+  port:
+    targetPort: 8080
+  wildcardPolicy: None

@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-img-ceph
+spec:
+  selector:
+    app: web-img-ceph
+  ports:
+    - port: 8080
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-img-ceph
+  labels:
+    app: web-img-ceph
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-img-ceph
+  template:
+    metadata:
+      labels:
+        app: web-img-ceph
+    spec:
+      containers:
+        - name: web-img-ceph
+          image: danieldocke/web-img-ceph:2.0
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: web-img-ceph
+spec:
+  host: web-img-ceph.primer-test.apps-crc.testing
+  #host: lala.192.168.130.11.nip.io
+  to:
+    kind: Service
+    name: web-img-ceph
+    weight: 100
+  port:
+    targetPort: 8080
+  wildcardPolicy: None
