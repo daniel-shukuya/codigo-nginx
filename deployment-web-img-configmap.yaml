@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: web-img-pvc
+  name: web-img-config
 spec:
   accessModes:
     - ReadWriteOnce
@@ -12,10 +12,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-img-pv
+  name: web-img-config
 spec:
   selector:
-    app: web-img-pv
+    app: web-img-config
   ports:
     - port: 8080
       protocol: TCP
@@ -23,43 +23,49 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-img-pv
+  name: web-img-config
   labels:
-    app: web-img-pv
+    app: web-img-config
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: web-img-pv
+      app: web-img-config
   template:
     metadata:
       labels:
-        app: web-img-pv
+        app: web-img-config
     spec:
       containers:
-        - name: web-img-pv
-          image: danieldocke/web-img-pv:2.0
+        - name: web-img-config
+          image: danieldocke/web-img-configmap:1.0
           ports:
             - containerPort: 8080
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: storage
               mountPath: /opt/app-root/src/provider
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
       volumes:
         - name: storage
           persistentVolumeClaim:
-            claimName: web-img-pvc
+            claimName: web-img-config
+        - name: nginx-config
+          configMap:
+            name: nginx-config
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: web-img-pv
+  name: web-img-config
 spec:
-  host: web-img-pv.primer-test.apps-crc.testing
+  host: web-img-config.primer-test.apps-crc.testing
   #host: lala.192.168.130.11.nip.io
   to:
     kind: Service
-    name: web-img-pv
+    name: web-img-config
     weight: 100
   port:
     targetPort: 8080
