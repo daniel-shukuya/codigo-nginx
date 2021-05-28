@@ -7,7 +7,8 @@ ADD nginx/nginx-cfg/*.conf "${NGINX_CONFIGURATION_PATH}"
 ADD nginx/index.html .
 
 RUN mkdir -p /tmp/nginx/cache/amzn
-RUN mkdir -p /tmp/nginx/cache/pmnt
+# si se agrega un nuevo proveedor de VODs, crear la carpeta
+#RUN mkdir -p /tmp/nginx/cache/pmnt
 
 RUN chgrp -R 0 /tmp/nginx/cache && chmod -R g=u /tmp/nginx/cache
 
